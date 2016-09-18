@@ -21,6 +21,7 @@
             <sources>
                 <include name = "IdGenerator.cs" />
                 <include name = "Base36Converter.cs" />
+                <include name = "JsonFormatter.cs" />
 
             </sources>
             <references>
