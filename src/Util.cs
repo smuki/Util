@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
+using System.Web;
+using System.Web.UI;
 using System.IO;
 using System.Data;
 using System.Data.OleDb;
@@ -11,6 +13,10 @@ using System.Threading;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Security.Principal;
+
+using System.Drawing.Imaging;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Volte.Utils
 {
@@ -156,5 +162,513 @@ namespace Volte.Utils
                 }
             }
         }
+
+        public static bool IsBoolean(string oValue)
+        {
+            if (string.IsNullOrEmpty(oValue)) {
+                oValue = "";
+            }
+
+            oValue = oValue.ToUpper();
+
+            if (oValue.Equals("CHECKED")) {
+                return true;
+            }
+
+            if (oValue.Equals("Y")) {
+                return true;
+            }
+
+            if (oValue.Equals("N")) {
+                return true;
+            }
+
+            if (oValue.Equals("YES")) {
+                return true;
+            }
+
+            if (oValue.Equals("NO")) {
+                return true;
+            }
+
+            if (oValue.Equals("TRUE")) {
+                return true;
+            }
+
+            if (oValue.Equals("FALSE")) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static Stream FileDecrypt(string fileName)
+        {
+            if (System.IO.File.Exists(fileName)) {
+                if (System.IO.Path.GetExtension(fileName) == ".tpl") {
+
+                    StreamReader objReader = new StreamReader(fileName);
+
+                    byte[] bt = Convert.FromBase64String(objReader.ReadToEnd());
+                    objReader.Close();
+                    return new System.IO.MemoryStream(bt);
+                } else {
+                    FileStream tfs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    byte[] data = Util.ReadFully(tfs);
+                    tfs.Close();
+
+                    return new System.IO.MemoryStream(data);
+
+                }
+            }
+
+            return null;
+        }
+
+        public static string FileEncrypt(string fileName)
+        {
+            string _TempFile = Util.ReplaceWith(fileName, "xls", "tpl");
+
+            if (System.IO.File.Exists(fileName)) {
+                if (System.IO.Path.GetExtension(fileName) == ".xls") {
+                    FileStream tfs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                    byte[] data = Util.ReadFully(tfs);
+                    tfs.Close();
+
+                    string base64string = Convert.ToBase64String(data);
+
+                    if (System.IO.File.Exists(_TempFile)) {
+                        File.Delete(_TempFile);
+                    }
+
+                    StreamWriter sw = new StreamWriter(_TempFile, false);
+                    sw.WriteLine(base64string);
+                    sw.Flush();
+                    sw.Close();
+                }
+            }
+
+            return _TempFile;
+        }
+
+        public static string Base64Encoder(string cString)
+        {
+            byte[] by  = Encoding.Unicode.GetBytes(cString.ToCharArray());
+            string str = Convert.ToBase64String(by);
+            return str;
+        }
+
+        public static string Base64Encoder(byte[] by)
+        {
+            string str = Convert.ToBase64String(by);
+            return str;
+        }
+
+        public static string Base64Decoder(string cString)
+        {
+            byte[] barray = Convert.FromBase64String(cString);
+            return Encoding.Unicode.GetString(barray);
+        }
+
+        public static string Base64Decoder(byte[] barray)
+        {
+            return Encoding.Unicode.GetString(barray);
+        }
+
+        public static byte[] ReadFully(Stream stream)
+        {
+            // 初始化一个32k的缓存
+            byte[] buffer = new byte[32768];
+            using(MemoryStream ms = new MemoryStream()) {
+                //返回结果后会自动回收调用该对象的Dispose方法释放内存
+                // 不停的读取
+                while (true) {
+                    int read = stream.Read(buffer, 0, buffer.Length);
+
+                    // 直到读取完最后的3M数据就可以返回结果了
+                    if (read <= 0) {
+                        return ms.ToArray();
+                    }
+
+                    ms.Write(buffer, 0, read);
+                }
+            }
+        }
+
+        public static string DateTimeVariable(string cValue)
+        {
+            return DateTimeVariable(cValue, DateTime.Now);
+        }
+
+        public static string TypeChar(string datatype)
+        {
+            string typechar = "c";
+
+            switch (datatype.Trim().ToLower()) {
+            case "boolean":
+                typechar = "l";
+                break;
+
+            case "datetime":
+                typechar = "d";
+                break;
+
+            case "float":
+            case "decimal":
+                typechar = "n";
+                break;
+
+            case "int":
+                typechar = "i";
+                break;
+
+            case "image":
+                typechar = "b";
+                break;
+
+            case "ntext":
+            case "picture":
+            case "nvarchar":
+                typechar = "c";
+                break;
+
+            case "caption":
+            case "label":
+                typechar = "x";
+                break;
+            }
+
+            return typechar;
+        }
+
+        public static int CellWidth(string datatype, int width, int fontPixe)
+        {
+            int _cellWitdh = width;
+
+            if (_cellWitdh <= 4) {
+                _cellWitdh = 4;
+            }
+
+            if (_cellWitdh >= 30) {
+                _cellWitdh = 30;
+            }
+
+            if (datatype == "decimal" && _cellWitdh > 8) {
+                _cellWitdh = 8;
+            }
+
+            if (datatype == "datetime" && _cellWitdh < 11) {
+                _cellWitdh = 11;
+            }
+
+            if (datatype == "picture") {
+                _cellWitdh = 9;
+            }
+
+            return _cellWitdh * fontPixe;
+        }
+
+        public static string DateTimeVariable(string cValue, DateTime _DateTime)
+        {
+            if (string.IsNullOrEmpty(cValue)) {
+                return "";
+            }
+
+            cValue = ReplaceWith(cValue , "{~}"  , IdGenerator.NewBase36("-"));
+            cValue = ReplaceWith(cValue , "{MM}" , _DateTime.ToString("MM"));
+
+            for (int i = 1; i < 12; i++) {
+                cValue = ReplaceWith(cValue , "{M+" + i + "}" , _DateTime.AddMonths(i).ToString("MM"));
+                cValue = ReplaceWith(cValue , "{M-" + i + "}" , _DateTime.AddMonths(-i).ToString("MM"));
+            }
+
+            cValue = ReplaceWith(cValue , "{YY}"   , _DateTime.ToString("yy"));
+            cValue = ReplaceWith(cValue , "{YYYY}" , _DateTime.ToString("yyyy"));
+            cValue = ReplaceWith(cValue , "{DD}"   , _DateTime.ToString("dd"));
+
+            for (int i = 1; i < 33; i++) {
+                cValue = ReplaceWith(cValue , "{D+" + i + "}" , _DateTime.AddDays(i).ToString("dd"));
+                cValue = ReplaceWith(cValue , "{D-" + i + "}" , _DateTime.AddDays(-i).ToString("dd"));
+            }
+
+            cValue = ReplaceWith(cValue , "{YD}" , _DateTime.DayOfYear.ToString());
+            cValue = ReplaceWith(cValue , "{YH}" , (_DateTime.DayOfYear * 24 + _DateTime.Hour).ToString());
+            cValue = ReplaceWith(cValue , "{YM}" , (_DateTime.DayOfYear * 24 * 60 + _DateTime.Hour * 60 + _DateTime.Minute).ToString());
+            return cValue;
+        }
+
+        public static StringBuilder ReadFile(string cFileName)
+        {
+            StringBuilder _s = new StringBuilder();
+
+            if (File.Exists(cFileName)) {
+                using(StreamReader sr = new StreamReader(cFileName)) {
+                    _s.Append(sr.ReadToEnd());
+                }
+            }
+
+            return _s;
+        }
+
+        public static string HTMLEnCode(string text)
+        {
+
+            StringBuilder _s = new StringBuilder();
+
+            foreach (char ch in text) {
+                switch (ch) {
+                case '\'':
+                    _s.Append("&apos;");
+                    break;
+
+                case '<':
+                    _s.Append("&lt;");
+                    break;
+
+                case '>':
+                    _s.Append("&gt;");
+                    break;
+
+                case '"':
+                    _s.Append("&quot;");
+                    break;
+
+                case '&':
+                    _s.Append("&amp;");
+                    break;
+
+                default:
+                    _s.Append(ch);
+                    break;
+                }
+            }
+
+            return _s.ToString();
+        }
+
+        public static string AntiSQLInjection(string str)
+        {
+            if (string.IsNullOrEmpty(str)) {
+                return "";
+            }
+
+            str = str.Replace("'" , "");
+            str = str.Replace("\\", "");
+            str = str.Replace(";" , "");
+            return str;
+        }
+
+        public static string UrlEncode(object c)
+        {
+            if (string.IsNullOrEmpty(c.ToString())) {
+                return "";
+            }
+
+            return System.Web.HttpUtility.UrlEncode(c.ToString());
+        }
+
+        public static string UrlDecode(object c)
+        {
+            if (string.IsNullOrEmpty(c.ToString())) {
+                return "";
+            }
+
+            return System.Web.HttpUtility.UrlDecode(c.ToString());
+        }
+
+        public static string Request(HttpContext oContext, string cName)
+        {
+            string _Value = "";
+
+            try {
+
+                if (oContext.Request[cName] != null) {
+                    _Value = (string) oContext.Request[cName];
+                }
+
+            } catch (Exception ex) {
+
+            }
+
+            return _Value;
+        }
+
+        public static string UserAgent()
+        {
+            string sValue= "";
+            try {
+                sValue= HttpContext.Current.Request.ServerVariables["HTTP_USER_AGENT"];
+                if (string.IsNullOrEmpty(sValue)){
+                    sValue="";
+                }
+            } catch {
+            }
+
+            return sValue;
+        }
+
+        public static string RemoteAddr()
+        {
+            string result = "0.0.0.0";
+
+            try {
+                result = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+
+                if (null == result || result == String.Empty) {
+                    result = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                }
+
+                if (null == result || result == String.Empty) {
+                    result = HttpContext.Current.Request.UserHostAddress;
+                }
+
+                return result;
+            } catch {
+            }
+
+            return result;
+        }
+
+        public static void Cookies(HttpContext context , string cName , string cValue)
+        {
+
+            try {
+                HttpCookie cookies = new HttpCookie("iGOS");
+                cookies["LogonId"] = cValue;
+                HttpContext.Current.Response.Cookies.Add(cookies);
+
+            } catch (Exception ex) {
+            }
+        }
+
+        public static string Cookies(HttpContext context , string cName)
+        {
+            string _Value = "";
+
+            try {
+                HttpCookie cookies = HttpContext.Current.Request.Cookies["iGOS"];
+
+                if (cookies != null) {
+                    _Value = cookies["LogonId"];
+                }
+
+            } catch (Exception ex) {
+            }
+
+            return _Value;
+        }
+
+        public static string Request(string cName)
+        {
+            string _Value = "";
+
+            try {
+
+                if (HttpContext.Current.Request[cName] != null) {
+                    _Value = (string) HttpContext.Current.Request[cName];
+                }
+
+            } catch (Exception ex) {
+            }
+
+            return _Value;
+        }
+
+        public static Image ScaleImage(Image imgPhoto , int maxWidth , int maxHeight)
+        {
+            if (maxWidth <= 0) {
+                maxWidth = 400;
+            }
+
+            if (maxHeight <= 0) {
+                maxHeight = 400;
+            }
+
+            float _OriginalWidth  = imgPhoto.Width;
+            float _OriginalHeight = imgPhoto.Height;
+            float destHeight        = 0;
+            float destWidth         = 0;
+
+            int sourceX = 0;
+            int sourceY = 0;
+            int destX   = 0;
+            int destY   = 0;
+
+            if (_OriginalWidth <= maxWidth && _OriginalHeight <= maxHeight) {
+                destWidth  = _OriginalWidth;
+                destHeight = _OriginalHeight;
+            } else {
+                if (_OriginalWidth > maxWidth) {
+                    destWidth  = maxWidth;
+                } else {
+                    destWidth  = _OriginalWidth;
+                }
+
+                destHeight = (destWidth * _OriginalHeight) / _OriginalWidth;
+            }
+
+            Bitmap bmPhoto = new Bitmap((int)destWidth, (int)destHeight, PixelFormat.Format32bppPArgb);
+            bmPhoto.SetResolution(imgPhoto.HorizontalResolution, imgPhoto.VerticalResolution);
+
+            Graphics grPhoto = Graphics.FromImage(bmPhoto);
+            grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            grPhoto.DrawImage(imgPhoto,
+                              new Rectangle(destX, destY, (int)destWidth, (int)destHeight),
+                              new Rectangle(sourceX, sourceY, (int)_OriginalWidth, (int)_OriginalHeight),
+                              GraphicsUnit.Pixel);
+
+            grPhoto.Dispose();
+
+            return bmPhoto;
+        }
+
+        public static System.Drawing.Size NewSize(int maxWidth, int maxHeight, int imageOriginalWidth, int imageOriginalHeight)
+        {
+            double w = 0.0;
+            double h = 0.0;
+            double sw = Convert.ToDouble(imageOriginalWidth);
+            double sh = Convert.ToDouble(imageOriginalHeight);
+            double mw = Convert.ToDouble(maxWidth);
+            double mh = Convert.ToDouble(maxHeight);
+
+            if (sw < mw && sh < mh) {
+                w = sw;
+                h = sh;
+            } else if ((sw / sh) > (mw / mh)) {
+                w = maxWidth;
+                h = (w * sh) / sw;
+            } else {
+                h = maxHeight;
+                w = (h * sw) / sh;
+            }
+
+            return new System.Drawing.Size(Convert.ToInt32(w), Convert.ToInt32(h));
+        }
+
+        public static Image ThumbNailImage(Image originalImage, int thumMaxWidth, int thumMaxHeight)
+        {
+            Size thumRealSize = System.Drawing.Size.Empty;
+            Image newImage = originalImage;
+            Graphics graphics = null;
+
+            try {
+                thumRealSize = NewSize(thumMaxWidth, thumMaxHeight, originalImage.Width, originalImage.Height);
+                //newImage = new System.Drawing.Bitmap(thumRealSize.Width, thumRealSize.Height);
+                newImage = new System.Drawing.Bitmap(thumMaxWidth, thumMaxHeight);
+                graphics = Graphics.FromImage(newImage);
+                //graphics.DrawImage(originalImage, new System.Drawing.Rectangle(0, 0, thumRealSize.Width, thumRealSize.Height), new Rectangle(0, 0, originalImage.Width, originalImage.Height), GraphicsUnit.Pixel);
+                graphics.DrawImage(originalImage, new System.Drawing.Rectangle(0, 0, thumMaxWidth, thumMaxHeight), new Rectangle(0, 0, originalImage.Width, originalImage.Height), GraphicsUnit.Pixel);
+            } catch { }
+            finally {
+                if (graphics != null) {
+                    graphics.Dispose();
+                    graphics = null;
+                }
+            }
+
+            return newImage;
+        }
+
     }
 }
