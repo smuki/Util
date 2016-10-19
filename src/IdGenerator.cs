@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Volte.Util
+namespace Volte.Utils
 {
 /// <summary>
 /// Provides unique, ascending, 16-character case-insensitive

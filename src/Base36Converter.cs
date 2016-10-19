@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Volte.Util
+namespace Volte.Utils
 {
     public static class Base36Converter {
         private static string _charList = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";

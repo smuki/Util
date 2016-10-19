@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Data;
 
-namespace Volte.Util
+namespace Volte.Utils
 {
     public class JsonFormatter
     {

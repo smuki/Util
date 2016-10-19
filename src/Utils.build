@@ -6,9 +6,9 @@
 
     <target name="Util">
         <property name="unsafe" value="true" />
-        <delete file="..\dist\Volte.Util.dll" failonerror="false" />
-        <delete file="..\dist\Volte.Util.pdb" failonerror="false" />
-        <csc target="library" output="..\dist\Volte.Util.dll" debug="${debug}" unsafe="${unsafe}">
+        <delete file="..\dist\Volte.Utils.dll" failonerror="false" />
+        <delete file="..\dist\Volte.Utils.pdb" failonerror="false" />
+        <csc target="library" output="..\dist\Volte.Utils.dll" debug="${debug}" unsafe="${unsafe}">
             <nowarn>
                 <!-- do not report deprecation warnings -->
                 <warning number = "0618" />
@@ -22,6 +22,7 @@
                 <include name = "IdGenerator.cs" />
                 <include name = "Base36Converter.cs" />
                 <include name = "JsonFormatter.cs" />
+                <include name = "Util.cs" />
 
             </sources>
             <references>
