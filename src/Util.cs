@@ -11,6 +11,7 @@ using System.Data.OleDb;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Runtime.InteropServices;
+using System.Globalization;
 using System.Reflection;
 using System.Security.Principal;
 
@@ -64,37 +65,37 @@ namespace Volte.Utils
             string typechar = "c";
 
             switch (datatype.Trim().ToLower()) {
-            case "boolean":
-                typechar = "l";
-                break;
+                case "boolean":
+                    typechar = "l";
+                    break;
 
-            case "datetime":
-                typechar = "d";
-                break;
+                case "datetime":
+                    typechar = "d";
+                    break;
 
-            case "float":
-            case "decimal":
-                typechar = "n";
-                break;
+                case "float":
+                case "decimal":
+                    typechar = "n";
+                    break;
 
-            case "int":
-                typechar = "i";
-                break;
+                case "int":
+                    typechar = "i";
+                    break;
 
-            case "image":
-                typechar = "b";
-                break;
+                case "image":
+                    typechar = "b";
+                    break;
 
-            case "ntext":
-            case "picture":
-            case "nvarchar":
-                typechar = "c";
-                break;
+                case "ntext":
+                case "picture":
+                case "nvarchar":
+                    typechar = "c";
+                    break;
 
-            case "caption":
-            case "label":
-                typechar = "x";
-                break;
+                case "caption":
+                case "label":
+                    typechar = "x";
+                    break;
             }
 
             return typechar;
@@ -305,37 +306,37 @@ namespace Volte.Utils
             string typechar = "c";
 
             switch (datatype.Trim().ToLower()) {
-            case "boolean":
-                typechar = "l";
-                break;
+                case "boolean":
+                    typechar = "l";
+                    break;
 
-            case "datetime":
-                typechar = "d";
-                break;
+                case "datetime":
+                    typechar = "d";
+                    break;
 
-            case "float":
-            case "decimal":
-                typechar = "n";
-                break;
+                case "float":
+                case "decimal":
+                    typechar = "n";
+                    break;
 
-            case "int":
-                typechar = "i";
-                break;
+                case "int":
+                    typechar = "i";
+                    break;
 
-            case "image":
-                typechar = "b";
-                break;
+                case "image":
+                    typechar = "b";
+                    break;
 
-            case "ntext":
-            case "picture":
-            case "nvarchar":
-                typechar = "c";
-                break;
+                case "ntext":
+                case "picture":
+                case "nvarchar":
+                    typechar = "c";
+                    break;
 
-            case "caption":
-            case "label":
-                typechar = "x";
-                break;
+                case "caption":
+                case "label":
+                    typechar = "x";
+                    break;
             }
 
             return typechar;
@@ -417,33 +418,86 @@ namespace Volte.Utils
 
             foreach (char ch in text) {
                 switch (ch) {
-                case '\'':
-                    _s.Append("&apos;");
-                    break;
+                    case '\'':
+                        _s.Append("&apos;");
+                        break;
 
-                case '<':
-                    _s.Append("&lt;");
-                    break;
+                    case '<':
+                        _s.Append("&lt;");
+                        break;
 
-                case '>':
-                    _s.Append("&gt;");
-                    break;
+                    case '>':
+                        _s.Append("&gt;");
+                        break;
 
-                case '"':
-                    _s.Append("&quot;");
-                    break;
+                    case '"':
+                        _s.Append("&quot;");
+                        break;
 
-                case '&':
-                    _s.Append("&amp;");
-                    break;
+                    case '&':
+                        _s.Append("&amp;");
+                        break;
 
-                default:
-                    _s.Append(ch);
-                    break;
+                    default:
+                        _s.Append(ch);
+                        break;
                 }
             }
 
             return _s.ToString();
+        }
+
+        public static void EscapeString(StringBuilder ss, string text)
+        {
+            foreach (char ch in text) {
+                switch (ch) {
+                    case '"':
+                        ss.Append("\\\"");
+                        break;
+
+                    case '\\':
+                        ss.Append(@"\\");
+                        break;
+
+                    case '\b':
+                        ss.Append(@"\b");
+                        break;
+
+                    case '\f':
+                        ss.Append(@"\f");
+                        break;
+
+                    case '\n':
+                        ss.Append(@"\n");
+                        break;
+
+                    case '\r':
+                        ss.Append(@"\r");
+                        break;
+
+                    case '\t':
+                        ss.Append(@"\t");
+                        break;
+
+                    default:
+                        if (char.IsLetterOrDigit(ch)) {
+                            ss.Append(ch);
+                        } else if (char.IsPunctuation(ch)) {
+                            ss.Append(ch);
+                        } else if (char.IsSeparator(ch)) {
+                            ss.Append(ch);
+                        } else if (char.IsWhiteSpace(ch)) {
+                            ss.Append(ch);
+                        } else if (char.IsSymbol(ch)) {
+                            ss.Append(ch);
+                        } else {
+                            ss.Append("\\u");
+                            ss.Append(((int) ch).ToString("X4", NumberFormatInfo.InvariantInfo));
+                        }
+
+                        break;
+                }
+            }
         }
 
         public static string AntiSQLInjection(string str)
@@ -614,13 +668,20 @@ namespace Volte.Utils
             grPhoto.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
             grPhoto.DrawImage(imgPhoto,
-                              new Rectangle(destX, destY, (int)destWidth, (int)destHeight),
-                              new Rectangle(sourceX, sourceY, (int)_OriginalWidth, (int)_OriginalHeight),
-                              GraphicsUnit.Pixel);
+                    new Rectangle(destX, destY, (int)destWidth, (int)destHeight),
+                    new Rectangle(sourceX, sourceY, (int)_OriginalWidth, (int)_OriginalHeight),
+                    GraphicsUnit.Pixel);
 
             grPhoto.Dispose();
 
             return bmPhoto;
+        }
+
+        public static DateTime DateTime_MinValue
+        {
+            get {
+                return DateTime.MinValue;
+            }
         }
 
         public static System.Drawing.Size NewSize(int maxWidth, int maxHeight, int imageOriginalWidth, int imageOriginalHeight)
@@ -668,6 +729,76 @@ namespace Volte.Utils
             }
 
             return newImage;
+        }
+
+        public static bool IsNumeric(object str)
+        {
+            decimal d;
+            return decimal.TryParse(str.ToString(), out d);
+        }
+
+        public static bool ToBoolean(object cValue)
+        {
+            bool d;
+            return bool.TryParse(Convert.ToString(cValue), out d) ? d : false;
+        }
+
+        public static decimal ToDecimal(object cValue)
+        {
+            decimal d;
+            return decimal.TryParse(Convert.ToString(cValue), out d) ? d : 0M;
+        }
+
+        public static int ToInt(object oValue)
+        {
+            return Util.ToInt32(oValue);
+        }
+
+        public static int ToInt32(object oValue)
+        {
+            if (oValue==null){
+                return 0;
+            }
+            int d;
+            return int.TryParse(oValue.ToString(), out d) ? d : 0;
+        }
+
+        public static long ToLong(object oValue)
+        {
+            long d;
+            return long.TryParse(oValue.ToString(), out d) ? d : 0;
+        }
+
+        public static DateTime ToDateTime(object oValue)
+        {
+
+            if (oValue is DateTime) {
+                return (DateTime) oValue;
+            } else if (oValue == null || oValue.ToString() == "") {
+                return Util.DateTime_MinValue;
+            } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 8) {
+                return DateTime.ParseExact(oValue.ToString(), "yyyyMMdd", null);
+            } else if (Util.IsNumeric(oValue)) {
+                return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
+            } else {
+                return Convert.ToDateTime(oValue);
+            }
+        }
+
+        public static DateTime? ToDateTime2(object oValue)
+        {
+
+            if (oValue is DateTime) {
+                return (DateTime) oValue;
+            } else if (oValue.ToString() == "") {
+                return null;
+            } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 8) {
+                return DateTime.ParseExact(oValue.ToString(), "yyyyMMdd", null);
+            } else if (Util.IsNumeric(oValue)) {
+                return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
+            } else {
+                return Convert.ToDateTime(oValue);
+            }
         }
 
     }
