@@ -374,27 +374,37 @@ namespace Volte.Utils
             if (string.IsNullOrEmpty(cValue)) {
                 return "";
             }
-
-            cValue = ReplaceWith(cValue , "{~}"  , IdGenerator.NewBase36("-"));
-            cValue = ReplaceWith(cValue , "{MM}" , _DateTime.ToString("MM"));
-
-            for (int i = 1; i < 12; i++) {
-                cValue = ReplaceWith(cValue , "{M+" + i + "}" , _DateTime.AddMonths(i).ToString("MM"));
-                cValue = ReplaceWith(cValue , "{M-" + i + "}" , _DateTime.AddMonths(-i).ToString("MM"));
+            for (int i = 1; i < 24; i++) {
+                if (cValue.IndexOf("{M+" + i + "}")>=0){
+                    _DateTime= _DateTime.AddMonths(+i);
+                    cValue = ReplaceWith(cValue , "{M+" + i + "}" , "");
+                }
+                if (cValue.IndexOf("{M-" + i + "}")>=0){
+                    _DateTime= _DateTime.AddMonths(-i);
+                    cValue = ReplaceWith(cValue , "{M-" + i + "}" , "");
+                }
+            }
+            for (int i = 1; i < 60; i++) {
+                if (cValue.IndexOf("{D+" + i + "}")>=0){
+                    _DateTime= _DateTime.AddDays(+i);
+                    cValue = ReplaceWith(cValue , "{D+" + i + "}" , "");
+                }
+                if (cValue.IndexOf("{D-" + i + "}")>=0){
+                    _DateTime= _DateTime.AddDays(-i);
+                    cValue = ReplaceWith(cValue , "{D-" + i + "}" , "");
+                }
             }
 
+            cValue = ReplaceWith(cValue , "{~}"    , IdGenerator.NewBase36("-"));
+            cValue = ReplaceWith(cValue , "{MM}"   , _DateTime.ToString("MM"));
             cValue = ReplaceWith(cValue , "{YY}"   , _DateTime.ToString("yy"));
             cValue = ReplaceWith(cValue , "{YYYY}" , _DateTime.ToString("yyyy"));
+            cValue = ReplaceWith(cValue , "{YY}"   , _DateTime.ToString("yy"));
             cValue = ReplaceWith(cValue , "{DD}"   , _DateTime.ToString("dd"));
 
-            for (int i = 1; i < 33; i++) {
-                cValue = ReplaceWith(cValue , "{D+" + i + "}" , _DateTime.AddDays(i).ToString("dd"));
-                cValue = ReplaceWith(cValue , "{D-" + i + "}" , _DateTime.AddDays(-i).ToString("dd"));
-            }
-
-            cValue = ReplaceWith(cValue , "{YD}" , _DateTime.DayOfYear.ToString());
-            cValue = ReplaceWith(cValue , "{YH}" , (_DateTime.DayOfYear * 24 + _DateTime.Hour).ToString());
-            cValue = ReplaceWith(cValue , "{YM}" , (_DateTime.DayOfYear * 24 * 60 + _DateTime.Hour * 60 + _DateTime.Minute).ToString());
+            cValue = ReplaceWith(cValue , "{YD}"   , _DateTime.DayOfYear.ToString());
+            cValue = ReplaceWith(cValue , "{YH}"   , (_DateTime.DayOfYear * 24 + _DateTime.Hour).ToString());
+            cValue = ReplaceWith(cValue , "{YM}"   , (_DateTime.DayOfYear * 24 * 60 + _DateTime.Hour * 60 + _DateTime.Minute).ToString());
             return cValue;
         }
 

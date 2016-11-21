@@ -11,7 +11,7 @@ namespace Volte.Utils
     public class PinyinHelper
     {
 
-        public string GetPYString(string str)
+        public static string GetPYString(string str)
         {
             string tempStr = "";
             foreach (char c in str)
@@ -25,7 +25,7 @@ namespace Volte.Utils
             return tempStr;
         }
 
-        public string GetPYChar(string c)
+        public static string GetPYChar(string c)
         {
             byte[] array = new byte[2];
             array = System.Text.Encoding.Default.GetBytes(c);
