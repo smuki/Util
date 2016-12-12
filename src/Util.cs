@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 using System.Web;
-using System.Web.UI;
 using System.IO;
 using System.Data;
 using System.Data.OleDb;
@@ -340,33 +339,6 @@ namespace Volte.Utils
             }
 
             return typechar;
-        }
-
-        public static int CellWidth(string datatype, int width, int fontPixe)
-        {
-            int _cellWitdh = width;
-
-            if (_cellWitdh <= 4) {
-                _cellWitdh = 4;
-            }
-
-            if (_cellWitdh >= 30) {
-                _cellWitdh = 30;
-            }
-
-            if (datatype == "decimal" && _cellWitdh > 8) {
-                _cellWitdh = 8;
-            }
-
-            if (datatype == "datetime" && _cellWitdh < 11) {
-                _cellWitdh = 11;
-            }
-
-            if (datatype == "picture") {
-                _cellWitdh = 9;
-            }
-
-            return _cellWitdh * fontPixe;
         }
 
         public static string DateTimeVariable(string cValue, DateTime _DateTime)
@@ -788,7 +760,9 @@ namespace Volte.Utils
                 return Util.DateTime_MinValue;
             } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 8) {
                 return DateTime.ParseExact(oValue.ToString(), "yyyyMMdd", null);
-            } else if (Util.IsNumeric(oValue)) {
+            } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 14) {
+                return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
+            } else if (Util.IsNumeric(oValue) ) {
                 return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
             } else {
                 return Convert.ToDateTime(oValue);
