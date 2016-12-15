@@ -769,6 +769,19 @@ namespace Volte.Utils
             }
         }
 
+        public static bool InDateRange(DateTime dt , DateTime? dt1 , DateTime? dt2)
+        {
+            if (dt1.HasValue && dt2.HasValue){
+                return dt.CompareTo(dt1) >= 0 && dt.CompareTo(dt2) <= 0;
+            }else if (dt1.HasValue && !dt2.HasValue){
+                return dt.CompareTo(dt1) >= 0;
+            }else if (!dt1.HasValue && dt2.HasValue){
+                return dt.CompareTo(dt2) >= 0;
+            }else{
+                return true;
+            }
+        }
+
         public static DateTime? ToDateTime2(object oValue)
         {
 

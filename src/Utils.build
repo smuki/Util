@@ -23,6 +23,7 @@
                 <include name = "Base36Converter.cs" />
                 <include name = "JsonFormatter.cs" />
                 <include name = "Util.cs" />
+                <include name = "Base36Coder.cs" />
                 <include name = "PinyinHelper.cs" />
 
             </sources>
