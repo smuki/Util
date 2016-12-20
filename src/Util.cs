@@ -251,6 +251,55 @@ namespace Volte.Utils
             return _TempFile;
         }
 
+        public static string Base64UrlEncodeByte(byte[] input)
+        {
+            var output = Convert.ToBase64String(input);
+            output = output.Split('=')[0]; // Remove any trailing '='s
+            output = output.Replace('+', '-'); // 62nd char of encoding
+            output = output.Replace('/', '_'); // 63rd char of encoding
+            return output;
+        }
+        public static string Base64UrlEncode(string input)
+        {
+            byte[] by  = Encoding.Unicode.GetBytes(input.ToCharArray());
+            var output = Convert.ToBase64String(by);
+            output = output.Split('=')[0]; // Remove any trailing '='s
+            output = output.Replace('+', '-'); // 62nd char of encoding
+            output = output.Replace('/', '_'); // 63rd char of encoding
+            return output;
+        }
+        public static byte[] Base64UrlDecodeByte(string input)
+        {
+            var output = input;
+            output = output.Replace('-', '+'); // 62nd char of encoding
+            output = output.Replace('_', '/'); // 63rd char of encoding
+
+            switch (output.Length % 4) // Pad with trailing '='s
+            {
+                case 0: break; // No pad chars in this case
+                case 2: output += "=="; break; // Two pad chars
+                case 3: output += "="; break;  // One pad char
+                default: throw new FormatException("Illegal base64url string!");
+            }
+            return Convert.FromBase64String(output); // Standard base64 decoder
+        }
+
+        public static string Base64UrlDecode(string input)
+        {
+            var output = input;
+            output = output.Replace('-', '+'); // 62nd char of encoding
+            output = output.Replace('_', '/'); // 63rd char of encoding
+            switch (output.Length % 4) // Pad with trailing '='s
+            {
+                case 0: break; // No pad chars in this case
+                case 2: output += "=="; break; // Two pad chars
+                case 3: output += "="; break;  // One pad char
+                default: throw new FormatException("Illegal base64url string!");
+            }
+            var converted = Convert.FromBase64String(output); // Standard base64 decoder
+            return Encoding.Unicode.GetString(converted);
+        }
+
         public static string Base64Encoder(string cString)
         {
             byte[] by  = Encoding.Unicode.GetBytes(cString.ToCharArray());
