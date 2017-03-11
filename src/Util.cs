@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using System.Globalization;
 using System.Reflection;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 
 using System.Drawing.Imaging;
 using System.Drawing;
@@ -22,7 +23,16 @@ namespace Volte.Utils
 {
     public class Util {
 
-        const string ZFILE_NAME = "CoreUtil";
+        const string ZFILE_NAME     = "CoreUtil";
+        //private static Regex _regex = new Regex (@"\{(?<Variable>[\@\w\.\s]+)\}");
+        public static readonly char[] WhiteSpaceChars = new char[]
+        {
+            (char)0x00 , (char)0x01 , (char)0x02 , (char)0x03 , (char)0x04 , (char)0x05 ,
+            (char)0x06 , (char)0x07 , (char)0x08 , (char)0x09 , (char)0x0a , (char)0x0b , (char)0x0c , (char)0x0d , (char)0x0e   , (char)0x0f   ,
+            (char)0x10 , (char)0x11 , (char)0x12 , (char)0x13 , (char)0x14 , (char)0x15 , (char)0x16 , (char)0x17 , (char)0x18   , (char)0x19   ,
+            (char)0x1a , (char)0x1b , (char)0x1c , (char)0x1d , (char)0x1e , (char)0x1f , (char)0x7f , (char)0x85 , (char)0x2028 , (char)0x2029 ,
+            (char)0xa0
+        };
 
         public static string ReplaceWith(string original, string pattern, string replacement)
         {
@@ -57,6 +67,40 @@ namespace Volte.Utils
             }
 
             return new string(chars, 0, count);
+        }
+
+        public static bool IsNonPrintable(string s)
+        {
+            if(string.IsNullOrEmpty(s)){
+                return false;
+            }
+            int l = s.Length;
+
+            if (s.Trim(WhiteSpaceChars).Length != l) {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool HasNonPrintable(string s)
+        {
+            if (string.IsNullOrEmpty(s)) {
+                return false;
+            } else {
+                for (int i = 0; i < WhiteSpaceChars.Length; i++) {
+                    if (s.IndexOf(WhiteSpaceChars[i])>=0){
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        public static bool HasChinese(string str)
+        {
+            return Regex.IsMatch(str, @"[\u4e00-\u9fa5]");
         }
 
         public static string DataTypeChar(string datatype)
@@ -390,43 +434,68 @@ namespace Volte.Utils
             return typechar;
         }
 
-        public static string DateTimeVariable(string cValue, DateTime _DateTime)
+        public static string DateTimeVariable(string cValue , DateTime _DateTime)
         {
             if (string.IsNullOrEmpty(cValue)) {
                 return "";
             }
-            for (int i = 1; i < 24; i++) {
-                if (cValue.IndexOf("{M+" + i + "}")>=0){
-                    _DateTime= _DateTime.AddMonths(+i);
-                    cValue = ReplaceWith(cValue , "{M+" + i + "}" , "");
-                }
-                if (cValue.IndexOf("{M-" + i + "}")>=0){
-                    _DateTime= _DateTime.AddMonths(-i);
-                    cValue = ReplaceWith(cValue , "{M-" + i + "}" , "");
-                }
-            }
-            for (int i = 1; i < 60; i++) {
-                if (cValue.IndexOf("{D+" + i + "}")>=0){
-                    _DateTime= _DateTime.AddDays(+i);
-                    cValue = ReplaceWith(cValue , "{D+" + i + "}" , "");
-                }
-                if (cValue.IndexOf("{D-" + i + "}")>=0){
-                    _DateTime= _DateTime.AddDays(-i);
-                    cValue = ReplaceWith(cValue , "{D-" + i + "}" , "");
+            string sValue = "";
+
+            string[] arry = cValue.Replace("]","[").Split('[');
+
+            foreach (string s in arry){
+                DateTime _t   = _DateTime;
+                if (!string.IsNullOrEmpty(s)){
+                    string _Value = s;
+
+                    for (int i = 1; i < 24; i++) {
+                        if (_Value.IndexOf("{M+" + i + "}")>=0){
+                            _t= _DateTime.AddMonths(+i);
+                            _Value = ReplaceWith(_Value , "{M+" + i + "}" , "");
+                        }
+                        if (_Value.IndexOf("{M-" + i + "}")>=0){
+                            _t= _DateTime.AddMonths(-i);
+                            _Value = ReplaceWith(_Value , "{M-" + i + "}" , "");
+                        }
+                    }
+
+                    for (int i = 1; i < 60; i++) {
+                        if (_Value.IndexOf("{D+" + i + "}")>=0){
+                            _t= _DateTime.AddDays(+i);
+                            _Value = ReplaceWith(_Value , "{D+" + i + "}" , "");
+                        }
+                        if (_Value.IndexOf("{D-" + i + "}")>=0){
+                            _t= _DateTime.AddDays(-i);
+                            _Value = ReplaceWith(_Value , "{D-" + i + "}" , "");
+                        }
+                    }
+
+                    _Value = ReplaceWith(_Value , "{MM}"   , _t.ToString("MM"));
+                    _Value = ReplaceWith(_Value , "{YY}"   , _t.ToString("yy"));
+                    _Value = ReplaceWith(_Value , "{YYYY}" , _t.ToString("yyyy"));
+                    _Value = ReplaceWith(_Value , "{YY}"   , _t.ToString("yy"));
+                    _Value = ReplaceWith(_Value , "{DD}"   , _t.ToString("dd"));
+                    _Value = ReplaceWith(_Value , "{~}"    , IdGenerator.NewBase36("-"));
+                    sValue = sValue+_Value;
+
                 }
             }
 
-            cValue = ReplaceWith(cValue , "{~}"    , IdGenerator.NewBase36("-"));
-            cValue = ReplaceWith(cValue , "{MM}"   , _DateTime.ToString("MM"));
-            cValue = ReplaceWith(cValue , "{YY}"   , _DateTime.ToString("yy"));
-            cValue = ReplaceWith(cValue , "{YYYY}" , _DateTime.ToString("yyyy"));
-            cValue = ReplaceWith(cValue , "{YY}"   , _DateTime.ToString("yy"));
-            cValue = ReplaceWith(cValue , "{DD}"   , _DateTime.ToString("dd"));
+            if (sValue==""){
+                sValue=cValue;
+            }
 
-            cValue = ReplaceWith(cValue , "{YD}"   , _DateTime.DayOfYear.ToString());
-            cValue = ReplaceWith(cValue , "{YH}"   , (_DateTime.DayOfYear * 24 + _DateTime.Hour).ToString());
-            cValue = ReplaceWith(cValue , "{YM}"   , (_DateTime.DayOfYear * 24 * 60 + _DateTime.Hour * 60 + _DateTime.Minute).ToString());
-            return cValue;
+            sValue = ReplaceWith(sValue , "{~}"    , IdGenerator.NewBase36("-"));
+            sValue = ReplaceWith(sValue , "{MM}"   , _DateTime.ToString("MM"));
+            sValue = ReplaceWith(sValue , "{YY}"   , _DateTime.ToString("yy"));
+            sValue = ReplaceWith(sValue , "{YYYY}" , _DateTime.ToString("yyyy"));
+            sValue = ReplaceWith(sValue , "{YY}"   , _DateTime.ToString("yy"));
+            sValue = ReplaceWith(sValue , "{DD}"   , _DateTime.ToString("dd"));
+
+            DateTime startWeek = _DateTime.AddDays(1 - Convert.ToInt32(_DateTime.DayOfWeek.ToString("d")));
+            DateTime endWeek   = startWeek.AddDays(6);
+
+            return sValue;
         }
 
         public static StringBuilder ReadFile(string cFileName)
