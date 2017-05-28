@@ -883,7 +883,9 @@ namespace Volte.Utils
             } else if (Util.IsNumeric(oValue) ) {
                 return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
             } else {
-                return Convert.ToDateTime(oValue);
+                DateTime d;
+                return DateTime.TryParse(oValue.ToString(), out d) ? d : Util.DateTime_MinValue;
+                //return Convert.ToDateTime(oValue);
             }
         }
 
