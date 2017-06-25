@@ -63,9 +63,8 @@ namespace Volte.Utils
             if(string.IsNullOrEmpty(s)){
                 return false;
             }
-            int l = s.Length;
 
-            if (s.Trim(WhiteSpaceChars).Length != l) {
+            if (s.Trim(WhiteSpaceChars).Length != s.Length) {
                 return true;
             }
 
