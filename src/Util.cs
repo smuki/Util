@@ -1,22 +1,11 @@
 using System;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Xml;
-using System.Web;
 using System.IO;
-using System.Data;
-using System.Data.OleDb;
-using System.Data.SqlClient;
-using System.Threading;
-using System.Runtime.InteropServices;
 using System.Globalization;
-using System.Reflection;
-using System.Security.Principal;
 using System.Text.RegularExpressions;
-
-using System.Drawing.Imaging;
+using System.Web;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 
 namespace Volte.Utils
