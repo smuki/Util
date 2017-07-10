@@ -824,7 +824,11 @@ namespace Volte.Utils
             decimal d;
             return decimal.TryParse(str.ToString(), out d);
         }
-
+        public static bool IsDateTime(object str)
+        {
+            DateTime d;
+            return DateTime.TryParse(str.ToString(), out d);
+        }
         public static bool ToBoolean(object cValue)
         {
             bool d;
