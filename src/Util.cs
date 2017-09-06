@@ -17,10 +17,10 @@ namespace Volte.Utils
         public static readonly char[] WhiteSpaceChars = new char[]
         {
             (char)0x00 , (char)0x01 , (char)0x02 , (char)0x03 , (char)0x04 , (char)0x05 ,
-            (char)0x06 , (char)0x07 , (char)0x08 , (char)0x09 , (char)0x0a , (char)0x0b , (char)0x0c , (char)0x0d , (char)0x0e   , (char)0x0f   ,
-            (char)0x10 , (char)0x11 , (char)0x12 , (char)0x13 , (char)0x14 , (char)0x15 , (char)0x16 , (char)0x17 , (char)0x18   , (char)0x19   ,
-            (char)0x1a , (char)0x1b , (char)0x1c , (char)0x1d , (char)0x1e , (char)0x1f , (char)0x7f , (char)0x85 , (char)0x2028 , (char)0x2029 ,
-            (char)0xa0
+                (char)0x06 , (char)0x07 , (char)0x08 , (char)0x09 , (char)0x0a , (char)0x0b , (char)0x0c , (char)0x0d , (char)0x0e   , (char)0x0f   ,
+                (char)0x10 , (char)0x11 , (char)0x12 , (char)0x13 , (char)0x14 , (char)0x15 , (char)0x16 , (char)0x17 , (char)0x18   , (char)0x19   ,
+                (char)0x1a , (char)0x1b , (char)0x1c , (char)0x1d , (char)0x1e , (char)0x1f , (char)0x7f , (char)0x85 , (char)0x2028 , (char)0x2029 ,
+                (char)0xa0
         };
 
         public static string ReplaceWith(string original, string pattern, string replacement)
@@ -594,9 +594,10 @@ namespace Volte.Utils
                 return "";
             }
 
-            str = str.Replace("'" , "");
-            str = str.Replace("\\", "");
-            str = str.Replace(";" , "");
+            str = str.Replace("'"    , "");
+            //str = str.Replace(Chr(0) , '');
+            str = str.Replace("\\"   , "");
+            str = str.Replace(";"    , "");
             return str;
         }
 
@@ -819,6 +820,78 @@ namespace Volte.Utils
             return newImage;
         }
 
+        public string ParsePeriod(string sPeriod)
+        {
+
+            int _position = sPeriod.IndexOf(":");
+            string sType  = "";
+            string sRtv   = "";
+
+            if (_position > 0) {
+                sType         = sPeriod.Substring(0, _position);
+                string sValue = sPeriod.Substring(_position+1,sPeriod.Length-_position-1);
+                string[] aRang = Regex.Split(sValue , "," , RegexOptions.IgnoreCase);
+
+                string sFrom = "";
+                string sTo   = "";
+                if (aRang.Length==1){
+
+                    sFrom = aRang[0];
+                    sTo   = aRang[0];
+                }
+                if (aRang.Length==2){
+
+                    sFrom = aRang[0];
+                    sTo   = aRang[1];
+                }
+
+                if (sType=="day"){
+
+                    if (sFrom!=""){
+                        int nFrom = int.Parse(sFrom);
+                        sRtv=DateTime.Now.AddDays(nFrom).ToString("yyyy-MM-dd");
+                    }
+
+                    if (sTo!=""){
+                        int nTo = int.Parse(sTo);
+                        sRtv=sRtv +","+ DateTime.Now.AddDays(nTo).ToString("yyyy-MM-dd");
+                    }
+                }else if (sType=="week"){
+
+                }else if (sType=="month"){
+
+                    if (sFrom!=""){
+                        int nFrom = int.Parse(sFrom);
+                        sRtv=DateTime.Now.AddMonths(nFrom).ToString("yyyy-MM-01");
+                    }
+
+                    if (sTo!=""){
+                        int nTo = int.Parse(sTo);
+                        sRtv=sRtv +","+ DateTime.Now.AddMonths(nTo).ToString("yyyy-MM-dd");
+                    }
+
+                }else if (sType=="quarter"){
+
+                }else if (sType=="year"){
+                    if (sFrom!=""){
+                        int nFrom = int.Parse(sFrom);
+                        sRtv=DateTime.Now.AddYears(nFrom).ToString("yyyy-MM-dd");
+                    }
+
+                    if (sTo!=""){
+                        int nTo = int.Parse(sTo);
+                        sRtv=sRtv +","+ DateTime.Now.AddYears(nTo).AddDays(-1).ToString("yyyy-MM-dd");
+                    }
+
+                }else if (sType=="usr"){
+
+                }
+
+            }
+
+            return sRtv;
+
+        }
         public static bool IsNumeric(object str)
         {
             decimal d;
