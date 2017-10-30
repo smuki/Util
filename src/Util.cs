@@ -892,6 +892,15 @@ namespace Volte.Utils
             return sRtv;
 
         }
+
+        public static long DateTimeToMilliSecond(DateTime dateTime)
+        {
+            DateTime windowsEpoch = new DateTime(1601, 1, 1, 0, 0, 0, 0);
+            DateTime javaEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            long epochDiff = (javaEpoch.ToFileTimeUtc() - windowsEpoch.ToFileTimeUtc())/TimeSpan.TicksPerMillisecond;
+            return (dateTime.ToFileTime() / TimeSpan.TicksPerMillisecond) - epochDiff;
+        }
+
         public static bool IsNumeric(object str)
         {
             decimal d;
@@ -943,14 +952,20 @@ namespace Volte.Utils
                 return Util.DateTime_MinValue;
             } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 8) {
                 return DateTime.ParseExact(oValue.ToString(), "yyyyMMdd", null);
-            } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 14) {
-                return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
-            } else if (Util.IsNumeric(oValue) ) {
-                return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
+            } else if (Util.IsNumeric(oValue) && oValue.ToString().Length >= 13) {
+                long nDateTime=Util.ToLong(oValue);
+                if (nDateTime>0){
+                    try {
+                        DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+                        TimeSpan toNow = new TimeSpan(nDateTime*10000);
+                        return dtStart.Add(toNow);
+                    } catch (Exception ex) {
+                    }
+                }
+                return Util.DateTime_MinValue;
             } else {
                 DateTime d;
                 return DateTime.TryParse(oValue.ToString(), out d) ? d : Util.DateTime_MinValue;
-                //return Convert.ToDateTime(oValue);
             }
         }
 
@@ -976,8 +991,17 @@ namespace Volte.Utils
                 return null;
             } else if (Util.IsNumeric(oValue) && oValue.ToString().Length == 8) {
                 return DateTime.ParseExact(oValue.ToString(), "yyyyMMdd", null);
-            } else if (Util.IsNumeric(oValue)) {
-                return DateTime.ParseExact(oValue.ToString(), "yyyyMMddhhmmss", null);
+            } else if (Util.IsNumeric(oValue) && oValue.ToString().Length >= 13) {
+                long nDateTime=Util.ToLong(oValue);
+                if (nDateTime>0){
+                    try {
+                        DateTime dtStart = TimeZone.CurrentTimeZone.ToLocalTime(new DateTime(1970, 1, 1));
+                        TimeSpan toNow = new TimeSpan(nDateTime*10000);
+                        return dtStart.Add(toNow);
+                    } catch (Exception ex) {
+                    }
+                }
+                return null;
             } else {
                 return Convert.ToDateTime(oValue);
             }
