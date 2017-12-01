@@ -570,22 +570,86 @@ namespace Volte.Utils
                     default:
                         if (char.IsLetterOrDigit(ch)) {
                             ss.Append(ch);
+                            break;
                         } else if (char.IsPunctuation(ch)) {
                             ss.Append(ch);
+                            break;
                         } else if (char.IsSeparator(ch)) {
                             ss.Append(ch);
+                        break;
                         } else if (char.IsWhiteSpace(ch)) {
                             ss.Append(ch);
+                        break;
                         } else if (char.IsSymbol(ch)) {
                             ss.Append(ch);
+                        break;
                         } else {
                             ss.Append("\\u");
                             ss.Append(((int) ch).ToString("X4", NumberFormatInfo.InvariantInfo));
+                        break;
                         }
 
-                        break;
                 }
             }
+        }
+        private static char SEPARATOR = '_';
+
+        public static string ToUnderlineName(string s) {
+            if (string.IsNullOrEmpty(s)) {
+                return "";
+            }
+
+            StringBuilder sb = new StringBuilder();
+            bool upperCase = false;
+            for (int i = 0; i < s.Length; i++) {
+                char c = s[i];
+
+                bool nextUpperCase = true;
+
+                if (i < (s.Length - 1)) {
+                    nextUpperCase = char.IsUpper(s[i + 1]);
+                }
+
+                if ((i >= 0) && char.IsUpper(c)) {
+                    if (!upperCase || !nextUpperCase) {
+                        if (i > 0) sb.Append(SEPARATOR);
+                    }
+                    upperCase = true;
+                } else {
+                    upperCase = false;
+                }
+
+                sb.Append(char.ToLower(c));
+            }
+
+            return sb.ToString();
+        }
+
+        public static string ToCamelCase(string s,int Capitalize = 0) {
+            if (string.IsNullOrEmpty(s)) {
+                return "";
+            }
+
+            s = s.ToLower();
+
+            StringBuilder sb = new StringBuilder(s.Length);
+            bool upperCase = false;
+            for (int i = 0; i < s.Length; i++) {
+                char c = s[i];
+
+                if (c == SEPARATOR) {
+                    upperCase = true;
+                } else if (Capitalize == i) {
+                    sb.Append(char.ToUpper(c));
+                } else if (upperCase) {
+                    sb.Append(char.ToUpper(c));
+                    upperCase = false;
+                } else {
+                    sb.Append(c);
+                }
+            }
+
+            return sb.ToString();
         }
 
         public static string AntiSQLInjection(string str)
