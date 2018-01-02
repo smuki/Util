@@ -457,6 +457,16 @@ namespace Volte.Utils
                             _Value = ReplaceWith(_Value , "{D-" + i + "}" , "");
                         }
                     }
+                    for (int i = 1; i < 5; i++) {
+                        if (_Value.IndexOf("{Y+" + i + "}")>=0){
+                            _t= _DateTime.AddYears(+i);
+                            _Value = ReplaceWith(_Value , "{Y+" + i + "}" , "");
+                        }
+                        if (_Value.IndexOf("{Y-" + i + "}")>=0){
+                            _t= _DateTime.AddYears(-i);
+                            _Value = ReplaceWith(_Value , "{Y-" + i + "}" , "");
+                        }
+                    }
 
                     _Value = ReplaceWith(_Value , "{MM}"   , _t.ToString("MM"));
                     _Value = ReplaceWith(_Value , "{YY}"   , _t.ToString("yy"));
