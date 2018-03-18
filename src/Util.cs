@@ -57,7 +57,6 @@ namespace Volte.Utils
 
             return new string(chars, 0, count);
         }
-
         public static bool IsNonPrintable(string s)
         {
             if(string.IsNullOrEmpty(s)){
@@ -985,6 +984,36 @@ namespace Volte.Utils
             DateTime d;
             return DateTime.TryParse(str.ToString(), out d);
         }
+
+        public static bool StringToBoolean(object oValue)
+        {
+            if (string.Compare(oValue.ToString(), "CHECKED", true) == 0) {
+                return true;
+            }
+
+            if (string.Compare(oValue.ToString(), "ON", true) == 0) {
+                return true;
+            }
+
+            if (string.Compare(oValue.ToString(), "Y", true) == 0) {
+                return true;
+            }
+
+            if (string.Compare(oValue.ToString(), "YES", true) == 0) {
+                return true;
+            }
+
+            if (string.Compare(oValue.ToString(), "1", true) == 0) {
+                return true;
+            }
+
+            if (string.Compare(oValue.ToString(), "TRUE", true) == 0) {
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool ToBoolean(object cValue)
         {
             bool d;
