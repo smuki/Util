@@ -1067,9 +1067,47 @@ namespace Volte.Utils
                 }
                 return Util.DateTime_MinValue;
             } else {
-                DateTime d;
-                return DateTime.TryParse(oValue.ToString(), out d) ? d : Util.DateTime_MinValue;
+
+
+                string s=oValue.ToString();
+                if (s.IndexOf("T")>0 && s.IndexOf("Z")>0){
+                    return GMT2Local(s);
+                }else{
+                    DateTime d;
+                    return DateTime.TryParse(oValue.ToString(), out d) ? d : Util.DateTime_MinValue;
+                }
             }
+        }
+
+        public static DateTime GMT2Local(string gmt)
+        {
+            DateTime dt = DateTime.MinValue;
+            try
+            {
+                string pattern = "";
+                if (gmt.IndexOf("+0") != -1)
+                {
+                    gmt = gmt.Replace("GMT", "");
+                    pattern = "ddd, dd MMM yyyy HH':'mm':'ss zzz";
+                }
+                if (gmt.ToUpper().IndexOf("GMT") != -1)
+                {
+                    pattern = "ddd, dd MMM yyyy HH':'mm':'ss 'GMT'";
+                }
+                if (pattern != "")
+                {
+                    dt = DateTime.ParseExact(gmt, pattern, System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.AdjustToUniversal);
+                    dt = dt.ToLocalTime();
+                }
+                else
+                {
+                    dt = Convert.ToDateTime(gmt);
+                }
+            }
+            catch
+            {
+            }
+            return dt;
         }
 
         public static bool InDateRange(DateTime dt , DateTime? dt1 , DateTime? dt2)
