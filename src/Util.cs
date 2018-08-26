@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -22,6 +23,18 @@ namespace Volte.Utils
                 (char)0x1a , (char)0x1b , (char)0x1c , (char)0x1d , (char)0x1e , (char)0x1f , (char)0x7f , (char)0x85 , (char)0x2028 , (char)0x2029 ,
                 (char)0xa0
         };
+
+        public static List<string> Parameters(string text)
+        {
+            var matchVale = new List<string>();
+            string Reg = @"(?<=\${)[^\${}]*(?=})";
+            string key = string.Empty;
+            foreach (Match m in Regex.Matches(text, Reg))
+            {
+                matchVale.Add(m.Value);
+            }
+            return matchVale;
+        }
 
         public static string ReplaceWith(string original, string pattern, string replacement)
         {
