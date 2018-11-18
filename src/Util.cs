@@ -1080,8 +1080,6 @@ namespace Volte.Utils
                 }
                 return Util.DateTime_MinValue;
             } else {
-
-
                 string s=oValue.ToString();
                 if (s.IndexOf("T")>0 && s.IndexOf("Z")>0){
                     return GMT2Local(s);
