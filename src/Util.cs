@@ -614,6 +614,67 @@ namespace Volte.Utils
                 }
             }
         }
+        //#region 全角转换半角以及半角转换为全角
+        ///转全角的函数(SBC case)
+        ///全角空格为12288，半角空格为32
+        ///其他字符半角(33-126)与全角(65281-65374)的对应关系是：均相差65248
+        public static string ToSBC( string input)
+        {
+            // 半角转全角：
+            char[] array = input.ToCharArray();
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == 32)
+                {
+                    array[i] = (char)12288;
+                    continue;
+                }
+                if (array[i] < 127)
+                {
+                    array[i] = (char)(array[i] + 65248);
+                }
+            }
+            return new string(array);
+        }
+
+        ///转半角的函数(DBC case)
+        ///全角空格为12288，半角空格为32
+        ///其他字符半角(33-126)与全角(65281-65374)的对应关系是：均相差65248//
+        public static string ToDBC( string input)
+        {
+            char[] array = input.ToCharArray();
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i] == 12288)
+                {
+                    array[i] = (char)32;
+                    continue;
+                }
+                if (array[i] > 65280 && array[i] < 65375)
+                {
+                    array[i] = (char)(array[i] - 65248);
+                }
+            }
+            return new string(array);
+        }
+        //#endregion
+
+        public static IEnumerable<string> SplitToWords(string str)
+        {
+            string s = "";
+            foreach (var item in str) {
+                if (!char.IsLetter(item) && item!='_'){
+                    if (s.Length>0){
+                        yield return s;
+                    }
+                    s ="";
+                }else{
+                    s += item;
+                }
+            }
+            yield return s;
+        }
+
         private static char SEPARATOR = '_';
 
         public static string ToUnderlineName(string s) {
@@ -681,7 +742,6 @@ namespace Volte.Utils
             }
 
             str = str.Replace("'"    , "");
-            //str = str.Replace(Chr(0) , '');
             str = str.Replace("\\"   , "");
             str = str.Replace(";"    , "");
             return str;

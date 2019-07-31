@@ -23,7 +23,9 @@
                 <include name = "Base36Converter.cs" />
                 <include name = "JsonFormatter.cs" />
                 <include name = "Util.cs" />
-                <include name = "PinyinHelper.cs" />
+                <include name = "Pinyin.cs" />
+                <include name = "PyCode.cs" />
+                <include name = "PyHash.cs" />
                 <include name = "CornUtility.cs" />
                 <include name = "CronExpression.cs" />
                 <include name = "ISet.cs" />
