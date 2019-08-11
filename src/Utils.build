@@ -31,6 +31,7 @@
                 <include name = "ISet.cs" />
                 <include name = "ISortedSet.cs" />
                 <include name = "TreeSet.cs" />
+                <include name = "CRC32.cs" />
 
             </sources>
             <references>
