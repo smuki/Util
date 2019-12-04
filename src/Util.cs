@@ -23,7 +23,12 @@ namespace Volte.Utils
                 (char)0x1a , (char)0x1b , (char)0x1c , (char)0x1d , (char)0x1e , (char)0x1f , (char)0x7f , (char)0x85 , (char)0x2028 , (char)0x2029 ,
                 (char)0xa0
         };
-
+        private static char[] charTable = new char[]{
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            '-', '_'
+        };
         public static List<string> Parameters(string text)
         {
             var matchVale = new List<string>();
@@ -153,7 +158,25 @@ namespace Volte.Utils
             } catch (Exception ex) {
             }
         }
-
+        public static String Bytes2Readable(byte[] buf) {
+            StringBuilder sb = new StringBuilder();
+            int bits = 0;
+            int n = 0;
+            for (int i = 0, len = buf.Length; i < len; i++) {
+                byte b = buf[i];
+                n = (n << 8) | (b & 0xff);
+                bits += 8;
+                do {
+                    bits -= 6;
+                    sb.Append(charTable[(n >> bits) & 63]);
+                } while (bits >= 6);
+            }
+            if (bits > 0) {
+                sb.Append(charTable[(n << (6 - bits)) & 63]);
+            }
+            return sb.ToString();
+        }
+      
         public static void WriteContents(string sFilePath, string sContents, bool bAppend = true)
         {
             FileStream file = null;
@@ -741,9 +764,8 @@ namespace Volte.Utils
                 return "";
             }
 
-            str = str.Replace("'"    , "");
-            str = str.Replace("\\"   , "");
-            str = str.Replace(";"    , "");
+            str = str.Replace("'"  , "");
+            str = str.Replace("\\" , "");
             return str;
         }
 
