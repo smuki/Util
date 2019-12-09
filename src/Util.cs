@@ -176,7 +176,7 @@ namespace Volte.Utils
             }
             return sb.ToString();
         }
-      
+
         public static void WriteContents(string sFilePath, string sContents, bool bAppend = true)
         {
             FileStream file = null;
@@ -698,7 +698,7 @@ namespace Volte.Utils
             yield return s;
         }
 
-        private static char SEPARATOR = '_';
+        private static char separator = '_';
 
         public static string ToUnderlineName(string s) {
             if (string.IsNullOrEmpty(s)) {
@@ -718,7 +718,7 @@ namespace Volte.Utils
 
                 if ((i >= 0) && char.IsUpper(c)) {
                     if (!upperCase || !nextUpperCase) {
-                        if (i > 0) sb.Append(SEPARATOR);
+                        if (i > 0) sb.Append(separator);
                     }
                     upperCase = true;
                 } else {
@@ -743,7 +743,7 @@ namespace Volte.Utils
             for (int i = 0; i < s.Length; i++) {
                 char c = s[i];
 
-                if (c == SEPARATOR) {
+                if (c == separator) {
                     upperCase = true;
                 } else if (Capitalize == i) {
                     sb.Append(char.ToUpper(c));
