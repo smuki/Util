@@ -1093,6 +1093,9 @@ namespace Volte.Utils
             if (string.Compare(oValue.ToString(), "Y", true) == 0) {
                 return true;
             }
+            if (string.Compare(oValue.ToString(), "T", true) == 0) {
+                return true;
+            }
 
             if (string.Compare(oValue.ToString(), "YES", true) == 0) {
                 return true;
