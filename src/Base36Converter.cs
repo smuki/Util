@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Volte.Utils
 {
@@ -24,7 +23,6 @@ namespace Volte.Utils
             // var digits = "0123456789abcdefghijklmnopqrstuvwxyz";
             int length = number.Length;
             string result = string.Empty;
-
 
             char[] newCharArray = number.ToCharArray();
             int newlen;

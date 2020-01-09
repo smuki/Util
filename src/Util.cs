@@ -40,6 +40,7 @@ namespace Volte.Utils
             }
             return matchVale;
         }
+       
 
         public static string ReplaceWith(string original, string pattern, string replacement)
         {
@@ -1112,10 +1113,45 @@ namespace Volte.Utils
             return false;
         }
 
-        public static bool ToBoolean(object cValue)
+        public static bool ToBoolean(object oValue)
         {
-            bool d;
-            return bool.TryParse(Convert.ToString(cValue), out d) ? d : false;
+            if (DBNull.Value.Equals(oValue) || oValue == null)
+            {
+                return false;
+            }
+            if (oValue is bool)
+            {
+                return (bool)oValue;
+            }
+            else if (oValue.Equals("Y") || oValue.Equals("y"))
+            {
+                return true;
+            }
+            else if (oValue.ToString() == "1")
+            {
+                return true;
+            }
+            else if (oValue.Equals("True") || oValue.Equals("true"))
+            {
+                return true;
+            }
+            else if (oValue.Equals("N") || oValue.Equals("n"))
+            {
+                return false;
+            }
+            else if (oValue.ToString() == "0")
+            {
+                return false;
+            }
+            else if (oValue.Equals("False") || oValue.Equals("false"))
+            {
+                return false;
+            }
+            else
+            {
+                bool d;
+                return bool.TryParse(Convert.ToString(oValue), out d) ? d : false;
+            }
         }
 
         public static decimal ToDecimal(object cValue)
@@ -1218,7 +1254,18 @@ namespace Volte.Utils
                 return true;
             }
         }
-
+        public static string GenerateRandomId(int len)
+        {
+            string s = "123456789abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ";
+            string reValue = string.Empty;
+            Random rnd = new Random();
+            while (reValue.Length < len)
+            {
+                string s1 = s[rnd.Next(0, s.Length)].ToString();
+                if (reValue.IndexOf(s1) == -1) reValue += s1;
+            }
+            return reValue;
+        }
         public static DateTime? ToDateTime2(object oValue)
         {
 

@@ -1,40 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Volte.Utils
 {
-/// <summary>
-/// Provides unique, ascending, 16-character case-insensitive
-/// identifiers using only the upper-case alphanumeric characters. The static
-/// 'NewBase36()' methods are thread-safe. These have been tested using all 8 of
-/// an Intel Core i7 processor's cores to continuously generate 80k+ ids per
-/// second without collisions. A compressed MD5 of the host identifier adds further
-/// collision protection in server farm scenarios. Should operate for ~115.8 years
-/// without collision, after which the sequence repeats with a different reserved
-/// byte (13th position of the 16).
-///
-/// Collision odds with constant, concurrent id generation at max capacity
-/// (assuming 100k / server / second):
-/// Guaranteed unique in each app domain via timestamp synchronization*
-///   1  server: One in 1.6538169 × 10⁹
-///   2 servers: One in 3.30763432 × 10⁹
-///   3 servers: One in 4.96145143 × 10⁹
-///  10 servers: One in 1.6538169 ×  10⁸
-/// 100 servers: One in 1.6538169 ×  10⁷
-///  1k servers: One in 1.6538173 ×  10⁶
-///
-/// After ~115.8 years, the ascending sort order would cycle back to the beginning.
-/// After ~4140 years, the in-service date must be reset.
-///
-/// * Uniqueness is enforced per-microsecond in an app domain; unenforced, the collision odds would
-/// be 1.65381717 × 10⁻⁸.
-/// </summary>
+    /// <summary>
+    /// Provides unique, ascending, 16-character case-insensitive
+    /// identifiers using only the upper-case alphanumeric characters. The static
+    /// 'NewBase36()' methods are thread-safe. These have been tested using all 8 of
+    /// an Intel Core i7 processor's cores to continuously generate 80k+ ids per
+    /// second without collisions. A compressed MD5 of the host identifier adds further
+    /// collision protection in server farm scenarios. Should operate for ~115.8 years
+    /// without collision, after which the sequence repeats with a different reserved
+    /// byte (13th position of the 16).
+    ///
+    /// Collision odds with constant, concurrent id generation at max capacity
+    /// (assuming 100k / server / second):
+    /// Guaranteed unique in each app domain via timestamp synchronization*
+    ///   1  server: One in 1.6538169 × 10⁹
+    ///   2 servers: One in 3.30763432 × 10⁹
+    ///   3 servers: One in 4.96145143 × 10⁹
+    ///  10 servers: One in 1.6538169 ×  10⁸
+    /// 100 servers: One in 1.6538169 ×  10⁷
+    ///  1k servers: One in 1.6538173 ×  10⁶
+    ///
+    /// After ~115.8 years, the ascending sort order would cycle back to the beginning.
+    /// After ~4140 years, the in-service date must be reset.
+    ///
+    /// * Uniqueness is enforced per-microsecond in an app domain; unenforced, the collision odds would
+    /// be 1.65381717 × 10⁻⁸.
+    /// </summary>
     public static class IdGenerator {
         /// <summary>
         /// This value should be hardcoded; edit it to reflect the in-service date for your platform:
