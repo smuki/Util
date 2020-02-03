@@ -622,17 +622,23 @@ namespace Volte.Utils
                             break;
                         } else if (char.IsSeparator(ch)) {
                             ss.Append(ch);
-                        break;
+                            break;
+                        }
+                        else if (char.IsControl(ch))
+                        {
+                            ss.Append("\\u");
+                            ss.Append(((int) ch).ToString("X4", NumberFormatInfo.InvariantInfo));
+                            break;
                         } else if (char.IsWhiteSpace(ch)) {
                             ss.Append(ch);
-                        break;
+                            break;
                         } else if (char.IsSymbol(ch)) {
                             ss.Append(ch);
-                        break;
+                            break;
                         } else {
                             ss.Append("\\u");
                             ss.Append(((int) ch).ToString("X4", NumberFormatInfo.InvariantInfo));
-                        break;
+                            break;
                         }
 
                 }
