@@ -40,7 +40,7 @@ namespace Volte.Utils
             }
             return matchVale;
         }
-       
+
 
         public static string ReplaceWith(string original, string pattern, string replacement)
         {
@@ -1070,10 +1070,15 @@ namespace Volte.Utils
 
         public static long DateTimeToMilliSecond(DateTime dateTime)
         {
-            DateTime windowsEpoch = new DateTime(1601, 1, 1, 0, 0, 0, 0);
-            DateTime javaEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
-            long epochDiff = (javaEpoch.ToFileTimeUtc() - windowsEpoch.ToFileTimeUtc())/TimeSpan.TicksPerMillisecond;
-            return (dateTime.ToFileTime() / TimeSpan.TicksPerMillisecond) - epochDiff;
+            try{
+                DateTime windowsEpoch = new DateTime(1601, 1, 1, 0, 0, 0, 0);
+                DateTime javaEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0);
+                long epochDiff = (javaEpoch.ToFileTimeUtc() - windowsEpoch.ToFileTimeUtc())/TimeSpan.TicksPerMillisecond;
+                return (dateTime.ToFileTime() / TimeSpan.TicksPerMillisecond) - epochDiff;
+            }catch (Exception ex) {
+
+            }
+            return 0L;
         }
 
         public static bool IsNumeric(object str)
