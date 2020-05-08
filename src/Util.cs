@@ -738,12 +738,10 @@ namespace Volte.Utils
             return sb.ToString();
         }
 
-        public static string ToCamelCase(string s,int Capitalize = 0) {
+        public static string ToCamelCase(string s , int Capitalize = 0) {
             if (string.IsNullOrEmpty(s)) {
                 return "";
             }
-
-            s = s.ToLower();
 
             StringBuilder sb = new StringBuilder(s.Length);
             bool upperCase = false;
@@ -1094,6 +1092,12 @@ namespace Volte.Utils
 
         public static bool StringToBoolean(object oValue)
         {
+            if (oValue is decimal) {
+                return (decimal)oValue==1;
+            }
+            if (oValue is int) {
+                return (int)oValue==1;
+            }
             if (string.Compare(oValue.ToString(), "CHECKED", true) == 0) {
                 return true;
             }
@@ -1133,6 +1137,11 @@ namespace Volte.Utils
             if (oValue is bool)
             {
                 return (bool)oValue;
+            }
+            if (oValue is decimal) {
+                return (decimal)oValue==1;
+            }else if (oValue is int) {
+                return (int)oValue==1;
             }
             else if (oValue.Equals("Y") || oValue.Equals("y"))
             {
