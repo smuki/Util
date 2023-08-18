@@ -44,6 +44,10 @@ namespace Volte.Utils
 
         public static string ReplaceWith(string original, string pattern, string replacement)
         {
+            if (string.IsNullOrEmpty(pattern))
+            {
+                return original;
+            }
             int count;
             int position0;
             int position1;
@@ -761,6 +765,102 @@ namespace Volte.Utils
             }
 
             return sb.ToString();
+        }
+        public static string DeUnicode(string input)
+        {
+            StringBuilder s = new StringBuilder();
+
+            int _pos = 0;
+            int s_length = input.Length;
+            while (_pos < s_length)
+            {
+                char c = input[_pos++];
+
+                if (c != '\\')
+                {
+                    s.Append(c);
+                    continue;
+                }
+
+                switch (input[_pos++])
+                {
+                    case '"':
+                        s.Append('"');
+                        break;
+
+                    case '\\':
+                        s.Append('\\');
+                        break;
+
+                    case '/':
+                        s.Append('/');
+                        break;
+
+                    case 'b':
+                        s.Append('\b');
+                        break;
+
+                    case 'f':
+                        s.Append('\f');
+                        break;
+
+                    case 'n':
+                        s.Append('\n');
+                        break;
+
+                    case 'r':
+                        s.Append('\r');
+                        break;
+
+                    case 't':
+                        s.Append('\t');
+                        break;
+
+                    case 'u':
+                        {
+                            if (s_length - _pos < 4)
+                            {
+                                break;
+                            }
+
+                            // parse the 32 bit hex into an integer codepoint
+                            s.Append((char)ParseUnicode(input[_pos], input[_pos + 1], input[_pos + 2], input[_pos + 3]));
+
+                            // skip 4 chars
+                            _pos += 4;
+                        }
+                        break;
+                }
+            }
+            return s.ToString();
+        }
+        public static uint ParseUnicode(char c1, char c2, char c3, char c4)
+        {
+            uint p1 = ParseSingleChar(c1, 0x1000);
+            uint p2 = ParseSingleChar(c2, 0x100);
+            uint p3 = ParseSingleChar(c3, 0x10);
+            uint p4 = ParseSingleChar(c4, 1);
+
+            return p1 + p2 + p3 + p4;
+        }
+        public static uint ParseSingleChar(char c1, uint multipliyer)
+        {
+            uint p1 = 0;
+
+            if (c1 >= '0' && c1 <= '9')
+            {
+                p1 = (uint)(c1 - '0') * multipliyer;
+            }
+            else if (c1 >= 'A' && c1 <= 'F')
+            {
+                p1 = (uint)((c1 - 'A') + 10) * multipliyer;
+            }
+            else if (c1 >= 'a' && c1 <= 'f')
+            {
+                p1 = (uint)((c1 - 'a') + 10) * multipliyer;
+            }
+
+            return p1;
         }
 
         public static string AntiSQLInjection(string str)
